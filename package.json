@@ -1,0 +1,8 @@
+{
+  "name": "brandguard-ai-nexora-round3",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BrandGuard AI pre-publication review demo with server-persisted review history and team activity",
+  "scripts": {"start": "node server.js"},
+  "engines": {"node": ">=18"}
+}

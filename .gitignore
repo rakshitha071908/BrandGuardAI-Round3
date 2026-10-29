@@ -1,0 +1,8 @@
+node_modules/
+data/workspace.json
+data/workspace.json.tmp
+.env
+
+.env*
+!.env.example
+/data/

@@ -1,0 +1,15 @@
+# BrandGuard AI — Start here
+
+1. Install Node.js 18 or newer.
+2. Open this folder in File Explorer, click the address bar, type `powershell`, and press Enter.
+3. Type `node server.js` and press Enter. Keep that window open.
+4. Open `http://localhost:3100` in Chrome.
+5. First visit: create your owner account. Use an email you can remember and a unique password of 12 or more characters.
+6. Go to Team workspace → Connect integrations. Choose Gemini free tier or OpenAI and paste that provider's API key. If you have WordPress, enter its HTTPS website address, username and Application Password. Press Save.
+7. Create reviewer/editor logins for teammates.
+8. Review a draft with AI. To send it to WordPress, press Save WordPress draft. It stays unpublished.
+
+Secrets go in a private `.env` file on this computer. Never send keys/passwords in this chat or put them in source code. Draft text is sent to the selected AI provider when you press Review. The WordPress button creates a draft only; it never publishes.
+
+If you deploy this online later, enter credentials in the host's private Environment Variables settings. Set `NODE_ENV=production`, `ADMIN_EMAIL` and a unique `ADMIN_PASSWORD` before the first launch; also add `AI_PROVIDER`, `GEMINI_API_KEY`, `GEMINI_MODEL` or `OPENAI_API_KEY`, `OPENAI_MODEL`, `WORDPRESS_URL`, `WORDPRESS_USERNAME` and `WORDPRESS_APP_PASSWORD` as needed. Do not upload `.env`.
+
