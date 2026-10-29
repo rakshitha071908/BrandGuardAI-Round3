@@ -115,9 +115,19 @@ async function aiReview(text,type){
   if(provider==='gemini'){
     if(!process.env.GEMINI_API_KEY)throw new Error('Gemini API key missing. Get a free-tier key from Google AI Studio and save it in Team Workspace.');
     const model=process.env.GEMINI_MODEL||'gemini-3.8-flash';
-    response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent',{method:'POST',signal:AbortSignal.timeout(45000),headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{responseMimeType:'application/json',temperature:0.2}})});
-    data=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error(data.error?.message||'Gemini API request failed ('+response.status+')');
+    const endpoint='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent';
+    const options={method:'POST',headers:{'x-goog-api-key':process.env.GEMINI_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{responseMimeType:'application/json',temperature:0.2}})};
+    const deadline=Date.now()+65000;
+    for(let attempt=0;attempt<3;attempt++){
+      const remaining=deadline-Date.now();
+      if(remaining<=0)throw new Error('Gemini is temporarily busy. Wait a little and try the review again.');
+      response=await fetch(endpoint,{...options,signal:AbortSignal.timeout(Math.min(45000,remaining))});
+      data=await response.json().catch(()=>({}));
+      if(response.ok)break;
+      const transient=[500,502,503,504].includes(response.status);
+      if(!transient||attempt===2)throw new Error(transient?'Gemini is temporarily busy. Wait a little and try the review again.':(data.error?.message||'Gemini API request failed ('+response.status+')'));
+      await new Promise(resolve=>setTimeout(resolve,Math.min(1000*(2**attempt)+Math.floor(Math.random()*300),Math.max(0,deadline-Date.now()))));
+    }
     content=data.candidates?.[0]?.content?.parts?.map(x=>x.text||'').join('')||'';
   }else{
     if(!process.env.OPENAI_API_KEY)throw new Error('OpenAI API key is not configured.');
